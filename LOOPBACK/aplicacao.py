@@ -39,7 +39,7 @@ def main():
         #seus dados a serem transmitidos são uma lista de bytes a serem transmitidos. Gere esta lista com o 
         #nome de txBuffer. Esla sempre irá armazenar os dados a serem enviados.
         
-        with open("img2.png", "rb") as image:
+        with open("..\img2.png", "rb") as image:
             f = image.read()
             b = bytearray(f)
             #print (b[0])
