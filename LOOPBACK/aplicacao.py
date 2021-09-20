@@ -13,6 +13,7 @@
 from enlace import *
 import time
 import numpy as np
+from termcolor import colored
 
 # voce deverá descomentar e configurar a porta com através da qual ira fazer comunicaçao
 #   para saber a sua porta, execute no terminal :
@@ -23,7 +24,8 @@ import numpy as np
 #serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 serialName = "COM6"                  # Windows(variacao de)
-
+imageR = "img2.png"
+imageW = "imgrecebida.png"
 
 def main():
     try:
@@ -38,26 +40,22 @@ def main():
         #aqui você deverá gerar os dados a serem transmitidos. 
         #seus dados a serem transmitidos são uma lista de bytes a serem transmitidos. Gere esta lista com o 
         #nome de txBuffer. Esla sempre irá armazenar os dados a serem enviados.
+        txBuffer = open(imageR, 'rb').read()
         
-        with open("..\img2.png", "rb") as image:
-            f = image.read()
-            b = bytearray(f)
-            #print (b[0])
-        txBuffer = b
-        print(txBuffer)
+        print(colored("txBuffer",'yellow'),txBuffer)
           
         #faça aqui uma conferência do tamanho do seu txBuffer, ou seja, quantos bytes serão enviados.
         nRx = len(txBuffer)
-        print('Quantos bytes serão enviados: ',nRx)
+        print(colored(('Quantos bytes serão enviados: ',nRx),'cyan'))
        
             
         #finalmente vamos transmitir os tados. Para isso usamos a funçao sendData que é um método da camada enlace.
         #faça um print para avisar que a transmissão vai começar.
-        print("A comunicação irá começar!")
+        print(colored("A comunicação irá começar!",'red'))
         #tente entender como o método send funciona!
         #Cuidado! Apenas trasmitimos arrays de bytes! Nao listas!
           
-        txBuffer = b
+        #txBuffer = b
         com1.sendData(np.asarray(txBuffer))
        
         # A camada enlace possui uma camada inferior, TX possui um método para conhecermos o status da transmissão
@@ -73,8 +71,14 @@ def main():
       
         #acesso aos bytes recebidos
         txLen = len(txBuffer)
-        print(txLen)
+        print(colored('txLen','magenta'),txLen)
+
         rxBuffer, nRx = com1.getData(txLen)
+        print(rxBuffer)
+        f = open(imageW,'wb')
+        f.write(rxBuffer)
+        f.close()
+
         print(rxBuffer)
         print("recebeu {}" .format(rxBuffer))
             
