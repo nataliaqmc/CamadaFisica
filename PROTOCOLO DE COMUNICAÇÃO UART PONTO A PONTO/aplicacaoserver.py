@@ -59,7 +59,7 @@ def main():
             print('Ultimo pacote recebido com sucesso: ', pacote[7])
             print('CRC h8: ', pacote[8])
             print('CRC h9: ', pacote[9])
-            if (numero == pacote[4]) and (pacote2[-4:] == eop) and ((len(pacote2)-4) == pacote[5]):
+            if (numero == pacote[4]) and (pacote2[-4:] == eop) and ((len(pacote2)-4) == pacote[5]) and (pacote[7]==numero-1):
                 envioConfirmacao =( b'\x04' + pacote[1:] + eop)
                 print('Dados sendo enviados: ', envioConfirmacao)
                 com1.sendData(envioConfirmacao)
@@ -70,7 +70,7 @@ def main():
             else:
                 envioErro = ( b'\x06'+pacote[1:] + eop)
                 com1.sendData(envioErro)
-                print('Erro ao receber o pacote!: ', envioErro)
+                print('Erro ao receber o pacote ',numero,': ', envioErro)
         
     
         # Encerra comunicação
