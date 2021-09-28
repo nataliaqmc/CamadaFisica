@@ -68,13 +68,8 @@ class RX(object):
         return(b)
 
     def getNData(self, size):
-        start = time.perf_counter()
         while(self.getBufferLen() < size):
-            end = time.perf_counter()
-            time.sleep(0.05)   
-            if (end - start) >=5:
-                return ('Não rodou')
-
+            time.sleep(0.05) 
         return(self.getBuffer(size))
 
 

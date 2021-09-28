@@ -66,16 +66,16 @@ def main():
         com1.enable()
         print("Comunicação aberta com sucesso")
 
-        eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
+        # INICIANDO O HANDSHAKE:
         
         split_txBuffer = readArquivo(arquivo)
         n_pacote = 0
         total_pacotes = len(split_txBuffer)
-        crc = random.randint(0,9)
-        tipoDeMensagem = 1
-        idSensor = random.randint(0,9)  # ID arbitrário
-        idServidor = random.randint(0,9)  # ID arbitrário
-        idArquivo = random.randint(0,9)
+        crc = random.randint(1,9)
+        tipoDeMensagem = 1 #Handshake
+        idSensor = random.randint(1,9)  # ID arbitrário
+        idServidor = random.randint(1,9)  # ID arbitrário
+        idArquivo = random.randint(1,9)
         h5 = idArquivo
         pacoteErroRecomeco = 2
         ultimoPacoteRecebido = 0
@@ -92,16 +92,13 @@ def main():
                 + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
                 + h8.to_bytes(1, byteorder='big')
                 + h9.to_bytes(1, byteorder='big'))
-
-
-        print('Head Inicial: ', head)
-
+        eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
         
-        pacote = head+eop
-        print('Pacote inicial: ', pacote)
-        vivo = pacote
+        pacoteHandshake = head+eop
+
+        print('Pacote Handshake: ', pacoteHandshake)
         print('Enviando um datagrama para conferir se o servidor está ligado!')
-        com1.sendData(vivo)
+        com1.sendData(pacoteHandshake)
         pergunta, tamanho = com1.getData(14)
 
         # Conferindo se o servidor está rodando:
@@ -109,7 +106,7 @@ def main():
         while pergunta == 'Não rodou':
             resposta = input('Servidor inativo. Tentar novamente? S/N: ')
             if resposta == 'S':
-                com1.sendData(vivo)
+                com1.sendData(pacoteHandshake)
                 pergunta, tamanho = com1.getData(14)
             else:
                 break
