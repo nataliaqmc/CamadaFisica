@@ -74,7 +74,6 @@ def main():
             print('Ultimo pacote recebido com sucesso: ', pacote[7])
             print('CRC h8: ', pacote[8])
             print('CRC h9: ', pacote[9])
-            print('len pacote2: ', len(pacote2))
             if (numero == pacote[4]) and (pacote2[-4:] == eop) and ((len(pacote2)-4) == pacote[5]):
                 envioConfirmacao =( b'\x04' + pacote[1:] + eop)
                 print('Dados sendo enviados: ', envioConfirmacao)

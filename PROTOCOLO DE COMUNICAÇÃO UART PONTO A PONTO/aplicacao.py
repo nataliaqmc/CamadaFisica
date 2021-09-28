@@ -17,22 +17,20 @@ serialName = "COM5"
 
 arquivo = 'PROTOCOLO DE COMUNICAÇÃO UART PONTO A PONTO/imgrecebida.png'
 
-
-def datagrama(img):
-
-    eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
-    txBuffer = open(img, 'rb').read()
-    nRx = len(txBuffer)
+def readArquivo(arquivo):
+    txBuffer = open(arquivo, 'rb').read()
     n = 114
     split_txBuffer = [txBuffer[i:i+n] for i in range(0, len(txBuffer), n)]
-    n_pacote = 1
-    total_pacotes = len(split_txBuffer)
-    crc = 8
+    return split_txBuffer
 
+
+
+def datagrama(idSensor, idServidor, split_txBuffer,crc):
+
+    eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
+    total_pacotes = len(split_txBuffer)
+    n_pacote = 1
     tipoDeMensagem = 3
-    idSensor = random.randint(0,9)  # ID arbitrário
-    idServidor = random.randint(0,9)  # ID arbitrário
-    print('ids: ',idServidor, idSensor)
     pacoteErroRecomeco = 1
     ultimoPacoteRecebido = 0
     h8 = crc
@@ -66,21 +64,18 @@ def main():
 
         com1 = enlace(serialName)
         com1.enable()
-
         print("Comunicação aberta com sucesso")
 
         eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
-        txBuffer = open(arquivo, 'rb').read()
-        nRx = len(txBuffer)
-        n = 114
-        split_txBuffer = [txBuffer[i:i+n] for i in range(0, len(txBuffer), n)]
+        
+        split_txBuffer = readArquivo(arquivo)
         n_pacote = 0
         total_pacotes = len(split_txBuffer)
-        crc = 8
+        crc = random.randint(0,9)
         tipoDeMensagem = 1
-        idSensor = 9  # ID arbitrário
-        idServidor = 8  # ID arbitrário
-        idArquivo = 22
+        idSensor = random.randint(0,9)  # ID arbitrário
+        idServidor = random.randint(0,9)  # ID arbitrário
+        idArquivo = random.randint(0,9)
         h5 = idArquivo
         pacoteErroRecomeco = 2
         ultimoPacoteRecebido = 0
@@ -120,7 +115,7 @@ def main():
                 break
 
         if pergunta != 'Não rodou':
-            lista_pacotes_a_serem_enviados = datagrama(arquivo)
+            lista_pacotes_a_serem_enviados = datagrama(idSensor,idServidor,split_txBuffer,crc)
             for pacote in lista_pacotes_a_serem_enviados:
                 print('Sending Pacote')
                 com1.sendData(pacote)
