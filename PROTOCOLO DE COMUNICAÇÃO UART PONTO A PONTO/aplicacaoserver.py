@@ -18,49 +18,34 @@ def main():
     try:
 
         com1 = enlace(serialName)
-        
         com1.enable()
-
 
         print("Comunicação aberta com sucesso")
         print('A recepção vai começar')
+
         vivo,n = com1.getData(14)
 
-        tipo=2
-        tipoDeMensagem = tipo
-        idSensor = vivo[1]
-        idServidor = vivo[2]
-        total_pacotes  = vivo[3]
-        n_pacote = vivo[4]
-        h5 = vivo[5]
-        pacoteErroRecomeco = vivo[6]
-        ultimoPacoteRecebido = vivo[7]
-        h8 = vivo[8]
-        h9 = vivo[9]
-
-        head = (tipoDeMensagem.to_bytes(1, byteorder='big')
-            + idSensor.to_bytes(1, byteorder='big')
-            + idServidor.to_bytes(1, byteorder='big')
-            + total_pacotes.to_bytes(1, byteorder='big')
-            + n_pacote.to_bytes(1, byteorder='big')
-            + h5.to_bytes(1, byteorder='big')
-            + pacoteErroRecomeco.to_bytes(1, byteorder='big')
-            + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
-            + h8.to_bytes(1, byteorder='big')
-            + h9.to_bytes(1, byteorder='big'))
+        head = ((2).to_bytes(1, byteorder='big')
+            + vivo[1].to_bytes(1, byteorder='big')
+            + vivo[2].to_bytes(1, byteorder='big')
+            + vivo[3].to_bytes(1, byteorder='big')
+            + vivo[4].to_bytes(1, byteorder='big')
+            + vivo[5].to_bytes(1, byteorder='big')
+            + vivo[6].to_bytes(1, byteorder='big')
+            + vivo[7].to_bytes(1, byteorder='big')
+            + vivo[8].to_bytes(1, byteorder='big')
+            + vivo[9].to_bytes(1, byteorder='big'))
 
         eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
-
         vivo = head+eop
-        print('Recebeu os dados d confirmação!')
-        #quantPacotes = int.from_bytes(vivo[6:9], 'big')
-        com1.sendData(vivo)
-        
-        print('Pronto para receber os pacotes!')
 
+        print('Recebeu os dados para confirmação!')
+        com1.sendData(vivo)
+
+        print('Pronto para receber os pacotes!')
         numero = 1
         
-        while numero <= total_pacotes:
+        while numero <= vivo[3]:
             pacote, tPacote = com1.getData(10)
             pacote2, tPacote2 = com1.getData(pacote[5] + 4)
             print('Head do pacote atual: ', pacote)

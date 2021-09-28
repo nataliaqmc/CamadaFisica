@@ -67,31 +67,25 @@ def main():
         print("Comunicação aberta com sucesso")
 
         # INICIANDO O HANDSHAKE:
-        
         split_txBuffer = readArquivo(arquivo)
         n_pacote = 0
         total_pacotes = len(split_txBuffer)
-        crc = random.randint(1,9)
+        crc = random.randint(1,100)
         tipoDeMensagem = 1 #Handshake
-        idSensor = random.randint(1,9)  # ID arbitrário
-        idServidor = random.randint(1,9)  # ID arbitrário
-        idArquivo = random.randint(1,9)
+        idSensor = random.randint(1,100)  # ID arbitrário
+        idServidor = random.randint(1,100)  # ID arbitrário
+        idArquivo = random.randint(1,100)
         h5 = idArquivo
         pacoteErroRecomeco = 2
         ultimoPacoteRecebido = 0
         h8 = crc
         h9 = crc
 
-        head = (tipoDeMensagem.to_bytes(1, byteorder='big')
-                + idSensor.to_bytes(1, byteorder='big')
-                + idServidor.to_bytes(1, byteorder='big')
-                + total_pacotes.to_bytes(1, byteorder='big')
-                + n_pacote.to_bytes(1, byteorder='big')
-                + h5.to_bytes(1, byteorder='big')
-                + pacoteErroRecomeco.to_bytes(1, byteorder='big')
-                + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
-                + h8.to_bytes(1, byteorder='big')
-                + h9.to_bytes(1, byteorder='big'))
+        head = (tipoDeMensagem.to_bytes(1, byteorder='big') + idSensor.to_bytes(1, byteorder='big')
+                + idServidor.to_bytes(1, byteorder='big') + total_pacotes.to_bytes(1, byteorder='big')
+                + n_pacote.to_bytes(1, byteorder='big') + h5.to_bytes(1, byteorder='big')
+                + pacoteErroRecomeco.to_bytes(1, byteorder='big') + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
+                + h8.to_bytes(1, byteorder='big') + h9.to_bytes(1, byteorder='big'))
         eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
         
         pacoteHandshake = head+eop
