@@ -11,8 +11,8 @@ import time
 import numpy as np
 from termcolor import colored
 import random
-#serialName = "COM6"
-serialName = "/dev/cu.usbmodem141401"                  # Windows(variacao de)
+serialName = "COM6"
+#serialName = "/dev/cu.usbmodem141401"                  # Windows(variacao de)
 
 def main():
     try:
@@ -27,7 +27,7 @@ def main():
         vivo,n = com1.getData(14)
 
         tipo=2
-        tipoDeMensagem = tipo.to_bytes(1, byteorder='big')
+        tipoDeMensagem = tipo
         idSensor = vivo[1]
         idServidor = vivo[2]
         total_pacotes  = vivo[3]
@@ -38,18 +38,18 @@ def main():
         h8 = vivo[8]
         h9 = vivo[9]
 
-        head = (tipoDeMensagem
-                + idSensor
-                + idServidor
-                + total_pacotes
-                + n_pacote
-                + h5
-                + pacoteErroRecomeco
-                + ultimoPacoteRecebido
-                + h8
-                + h9)
+        head = (tipoDeMensagem.to_bytes(1, byteorder='big')
+            + idSensor.to_bytes(1, byteorder='big')
+            + idServidor.to_bytes(1, byteorder='big')
+            + total_pacotes.to_bytes(1, byteorder='big')
+            + n_pacote.to_bytes(1, byteorder='big')
+            + h5.to_bytes(1, byteorder='big')
+            + pacoteErroRecomeco.to_bytes(1, byteorder='big')
+            + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
+            + h8.to_bytes(1, byteorder='big')
+            + h9.to_bytes(1, byteorder='big'))
 
-        eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
+        eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
 
         vivo = head+eop
         print('Recebeu os dados d confirmação!')
@@ -60,20 +60,33 @@ def main():
 
         numero = 1
         
-        """while numero <= quantPacotes:
+        while numero <= total_pacotes:
             pacote, tPacote = com1.getData(10)
-            pacote2, tPacote2 = com1.getData(int.from_bytes(pacote[0:3], 'big') + 4)
-            print('Tamanho do pacote atual: ', int.from_bytes(pacote[0:3], 'big'))
-            print('Número do pacote atual: ', int.from_bytes(pacote[3:6], 'big'))
-            print('Quantidades de pacotes a serem recebidos: ', int.from_bytes(pacote[6:9], 'big'))
-            print('Datagrama recebido: ', pacote2)
-            if numero == int.from_bytes(pacote[3:6], 'big') and pacote2[-4:] == (b'\x66' b'\x69' b'\x6d' b'\x21') and (len(pacote2)-4) == (int.from_bytes(pacote[0:3], 'big')):
-                com1.sendData(pacote)
+            pacote2, tPacote2 = com1.getData(pacote[5] + 4)
+            print('Head do pacote atual: ', pacote)
+            print('Tipo de mensagem recebida: ', pacote[0])
+            print('Id do sensor: ', pacote[1])
+            print('Id do servidor: ', pacote[2])
+            print('Número total de pacotes do arquivo: ', pacote[3])
+            print('Número do pacote sendo recebido: ', pacote[4])
+            print('Tamanho do payload: ', pacote[5])
+            print('Pacote solicitado para recomeço quando a erro no envio: ',pacote[6])
+            print('Ultimo pacote recebido com sucesso: ', pacote[7])
+            print('CRC h8: ', pacote[8])
+            print('CRC h9: ', pacote[9])
+            print('len pacote2: ', len(pacote2))
+            if (numero == pacote[4]) and (pacote2[-4:] == eop) and ((len(pacote2)-4) == pacote[5]):
+                envioConfirmacao =( b'\x04' + pacote[1:] + eop)
+                print('Dados sendo enviados: ', envioConfirmacao)
+                com1.sendData(envioConfirmacao)
                 numero += 1
                 print('Pacote recebido com sucesso!')
+                print('-----------------------------------------------')
+                print(' ')
             else:
-                com1.sendData(b'/x00')
-                print('Erro ao receber o pacote!')"""
+                envioErro = ( b'\x06'+pacote[1:] + eop)
+                com1.sendData(envioErro)
+                print('Erro ao receber o pacote!: ', envioErro)
         
     
         # Encerra comunicação
