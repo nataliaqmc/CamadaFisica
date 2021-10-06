@@ -1,6 +1,6 @@
 # Camada Física da Computação - 2021.2:
 ### Integrantes: 
- - Carolina Hirschheimmer
+ - Carolina Hirschheimer
  - Natália Queiroz Menezes Carreras
 
 
