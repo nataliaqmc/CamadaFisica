@@ -12,8 +12,8 @@ import numpy as np
 from termcolor import colored
 import random
 from datetime import datetime
-#serialName = "COM6"
-serialName = "/dev/cu.usbmodem141401"                  # Windows(variacao de)
+serialName = "COM6"
+#serialName = "/dev/cu.usbmodem141401"                  # Windows(variacao de)
 
 lista_logs = []
 
@@ -36,7 +36,7 @@ def cria_log(mensagem, envio_ou_recebimento):
     return log
 
 def cria_arquivo_logs(lista_logs: list, n_situacao: int):
-    logs = open(f'logs/Server{n_situacao}.txt', 'w')
+    logs = open(f'PROTOCOLO DE COMUNICAÇÃO UART PONTO A PONTO/logs/Server{n_situacao}.txt', 'w')
     for log in lista_logs:
       logs.write('%s\n' % log)
     logs.close()
@@ -65,16 +65,14 @@ def main():
 
         eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
         vivo = head + eop
-
         print('Recebeu os dados para confirmação!')
-        com1.sendData(vivo)
-        lista_logs.append(cria_log(vivo, 'envio'))
-
+        #com1.sendData(vivo)
+        #lista_logs.append(cria_log(vivo, 'envio'))
+            
         print('Pronto para receber os pacotes!')
         numero = 1
-        
+        timer_inicio = time.time()
         while numero <= vivo[3]:
-            timer_inicio = time.time()
             pacote, tPacote = com1.getData(10)
             lista_logs.append(cria_log(pacote, 'recebimento'))
             pacote2, tPacote2 = com1.getData(pacote[5] + 4)
@@ -94,21 +92,23 @@ def main():
             if (numero == pacote[4]) and (pacote2[-4:] == eop) and ((len(pacote2)-4) == pacote[5]) and (pacote[7]==numero-1) and (time.time() - timer_inicio < 20):
                 envioConfirmacao =( b'\x04' + pacote[1:] + eop)
                 print('Dados sendo enviados: ', envioConfirmacao)
-                com1.sendData(envioConfirmacao)
+                #com1.sendData(envioConfirmacao)
                 lista_logs.append(cria_log(envioConfirmacao, 'envio'))
                 numero += 1
                 print('Pacote recebido com sucesso!')
                 print('-----------------------------------------------')
                 print(' ')
-            elif time.time() - timer_inicio > 20:
+                timer_inicio = time.time()
+            elif time.time() - timer_inicio > 20 or pacote == b'\x00':
                 envioErro = ( b'\x05'+pacote[1:] + eop)
                 com1.sendData(envioErro)
                 lista_logs.append(cria_log(envioErro, 'envio'))
+                cria_arquivo_logs(lista_logs, 3)
                 print("-------------------------")
                 print("Comunicação encerrada por time out")
                 print("-------------------------")
                 com1.disable()
-                cria_arquivo_logs(lista_logs, 1)
+                break
             else:
                 envioErro = ( b'\x06'+pacote[1:] + eop)
                 com1.sendData(envioErro)
@@ -121,7 +121,7 @@ def main():
         print("Comunicação encerrada")
         print("-------------------------")
         com1.disable()
-        cria_arquivo_logs(lista_logs, 1)
+        cria_arquivo_logs(lista_logs, 3)
         
     except Exception as erro:
         print("ops! :-\\")

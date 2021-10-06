@@ -68,8 +68,13 @@ class RX(object):
         return(b)
 
     def getNData(self, size):
+        start = time.perf_counter()
         while(self.getBufferLen() < size):
-            time.sleep(0.05) 
+            end = time.perf_counter()
+            time.sleep(0.05)   
+            if (end - start) >20:
+                print("Comunicação encerrada por time out")
+                return (b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00'+b'\x00')
         return(self.getBuffer(size))
 
 

@@ -14,8 +14,8 @@ import random
 from crc import CrcCalculator, Crc8
 from datetime import datetime
 
-#serialName = "COM5"
-serialName = "/dev/cu.usbmodem141201"                  # Windows(variacao de)
+serialName = "COM5"
+#serialName = "/dev/cu.usbmodem141201"                  # Windows(variacao de)
 
 arquivo = 'imgrecebida.png'
 eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
@@ -101,7 +101,7 @@ def main():
         # INICIANDO O HANDSHAKE:
         global eop
         split_txBuffer = readArquivo(arquivo)
-        n_pacote = 0
+        n_pacote = 4
         total_pacotes = len(split_txBuffer)
         #crc = random.randint(1,100)
         tipoDeMensagem = 1 #Handshake
@@ -138,15 +138,26 @@ def main():
 
         # Conferindo se o servidor está rodando:
         print('Resposta recebida: ', pergunta)
+        timer_inicio_handshake = time.time()
         while pergunta == 'Não rodou':
-            resposta = input('Servidor inativo. Tentar novamente? S/N: ')
-            if resposta == 'S':
-                com1.sendData(pacoteHandshake)
-                lista_logs.append(cria_log(pacoteHandshake, 'envio'))
-                pergunta, tamanho = com1.getData(14)
-                lista_logs.append(cria_log(pergunta, 'recebimento'))
-            else:
+            if time.time() - timer_inicio_handshake > 20:
+                # Encerra comunicação
+                print("-------------------------")
+                print("Comunicação encerrada por time out")
+                print("-------------------------")
+                com1.disable()
+                cria_arquivo_logs(lista_logs, 3)
                 break
+            else:
+                resposta = input('Servidor inativo. Tentar novamente? S/N: ')
+                if resposta == 'S':
+                    com1.sendData(pacoteHandshake)
+                    lista_logs.append(cria_log(pacoteHandshake, 'envio'))
+                    pergunta, tamanho = com1.getData(14)
+                    lista_logs.append(cria_log(pergunta, 'recebimento'))
+                else:
+                    break
+            
 
         if pergunta != 'Não rodou':
             lista_pacotes_a_serem_enviados = datagrama(idSensor,idServidor,split_txBuffer,crc_calculator)
@@ -159,10 +170,11 @@ def main():
                 confirmacao, t = com1.getData(14)
                 lista_logs.append(cria_log(confirmacao, 'recebimento'))
                 timer_inicio = time.time()
-
-                while (confirmacao[1:10] != pacote[1:10]):
+                
+                while ((confirmacao[1:10] != pacote[1:10]) or (confirmacao[0] == 6)):
                     if time.time() - timer_inicio > 20:
-                        envioErro = ( b'\x05'+confirmacao[1:] + eop)
+                        envioErro = ( b'\x05'+pacote[1:] + eop)
+                        print( 'envio erro: ', envioErro)
                         com1.sendData(envioErro)
                         lista_logs.append(cria_log(envioErro, 'envio'))
                         # Encerra comunicação
@@ -170,9 +182,10 @@ def main():
                         print("Comunicação encerrada por time out")
                         print("-------------------------")
                         com1.disable()
-                        cria_arquivo_logs(lista_logs, 1)
+                        cria_arquivo_logs(lista_logs, 2)
+                        break
                     print('Repetindo o envio do pacote!')
-                    print(confirmacao[1:10], ' != ', pacote[1:10])
+                    print('N',confirmacao[1:10], ' != ', pacote[1:10])
                     com1.sendData(pacote)
                     com1.sendData(pacote)
                     lista_logs.append(cria_log(pacote, 'envio'))
@@ -185,7 +198,7 @@ def main():
         print("-------------------------")
         com1.disable()
 
-        cria_arquivo_logs(lista_logs, 1)
+        cria_arquivo_logs(lista_logs, 2)
 
     except Exception as erro:
         print("ops! :-\\")
