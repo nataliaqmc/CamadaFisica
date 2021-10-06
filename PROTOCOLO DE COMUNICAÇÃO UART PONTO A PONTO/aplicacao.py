@@ -11,23 +11,20 @@ import time
 import numpy as np
 from termcolor import colored
 import random
-
+from crc import CrcCalculator, Crc8
 serialName = "COM5"
 #serialName = "/dev/cu.usbmodem141201"                  # Windows(variacao de)
 
 arquivo = 'PROTOCOLO DE COMUNICAÇÃO UART PONTO A PONTO/imgrecebida.png'
-
+eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
 def readArquivo(arquivo):
     txBuffer = open(arquivo, 'rb').read()
     n = 114
     split_txBuffer = [txBuffer[i:i+n] for i in range(0, len(txBuffer), n)]
     return split_txBuffer
 
-
-
 def datagrama(idSensor, idServidor, split_txBuffer,crc):
-
-    eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
+    global eop
     total_pacotes = len(split_txBuffer)
     n_pacote = 1
     tipoDeMensagem = 3
@@ -54,8 +51,8 @@ def datagrama(idSensor, idServidor, split_txBuffer,crc):
         ultimoPacoteRecebido += 1
         pacote = head + payload + eop
         lista_pacotes_a_serem_enviados.append(pacote)
-    print('LISTA DOS PACOTES A SEREM ENVIADOS: ',
-          lista_pacotes_a_serem_enviados)
+    print(colored(('LISTA DOS PACOTES A SEREM ENVIADOS: ',
+          lista_pacotes_a_serem_enviados),'yellow'))
     return lista_pacotes_a_serem_enviados
 
 
@@ -67,6 +64,7 @@ def main():
         print("Comunicação aberta com sucesso")
 
         # INICIANDO O HANDSHAKE:
+        global eop
         split_txBuffer = readArquivo(arquivo)
         n_pacote = 0
         total_pacotes = len(split_txBuffer)
@@ -75,22 +73,23 @@ def main():
         idSensor = random.randint(1,100)  # ID arbitrário
         idServidor = random.randint(1,100)  # ID arbitrário
         idArquivo = random.randint(1,100)
-        h5 = idArquivo
-        pacoteErroRecomeco = 2
+        pacoteErroRecomeco = 0
         ultimoPacoteRecebido = 0
+        '''crc_calculator = CrcCalculator(Crc8.CCITT)
+        checksum = crc_calculator.calculate_checksum(payload)'''
         h8 = crc
         h9 = crc
 
         head = (tipoDeMensagem.to_bytes(1, byteorder='big') + idSensor.to_bytes(1, byteorder='big')
                 + idServidor.to_bytes(1, byteorder='big') + total_pacotes.to_bytes(1, byteorder='big')
-                + n_pacote.to_bytes(1, byteorder='big') + h5.to_bytes(1, byteorder='big')
+                + n_pacote.to_bytes(1, byteorder='big') + idArquivo.to_bytes(1, byteorder='big')
                 + pacoteErroRecomeco.to_bytes(1, byteorder='big') + ultimoPacoteRecebido.to_bytes(1, byteorder='big')
                 + h8.to_bytes(1, byteorder='big') + h9.to_bytes(1, byteorder='big'))
-        eop = (b'\xFF' b'\xAA' b'\xFF' b'\xAA')
         
-        pacoteHandshake = head+eop
+        pacoteHandshake = head + eop
 
-        print('Pacote Handshake: ', pacoteHandshake)
+        # ENVIANDO O HANDSHAKE:
+        print(colored(('Pacote Handshake: ', pacoteHandshake),'magenta'))
         print('Enviando um datagrama para conferir se o servidor está ligado!')
         com1.sendData(pacoteHandshake)
         pergunta, tamanho = com1.getData(14)

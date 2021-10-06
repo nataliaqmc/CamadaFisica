@@ -16,13 +16,12 @@ serialName = "COM6"
 
 def main():
     try:
-
         com1 = enlace(serialName)
         com1.enable()
 
         print("Comunicação aberta com sucesso")
         print('A recepção vai começar')
-
+        
         vivo,n = com1.getData(14)
 
         head = ((2).to_bytes(1, byteorder='big')
@@ -37,7 +36,7 @@ def main():
             + vivo[9].to_bytes(1, byteorder='big'))
 
         eop = (b'\xff' b'\xaa' b'\xff' b'\xaa')
-        vivo = head+eop
+        vivo = head + eop
 
         print('Recebeu os dados para confirmação!')
         com1.sendData(vivo)
