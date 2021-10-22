@@ -16,6 +16,6 @@ void loop() {
 
 
 void send_byte() {
-  char data = '01000001';
+  char data = 'a';
   sw_uart_write_byte(&uart, data);
 }
