@@ -1,13 +1,13 @@
 #include "sw_uart.h"
 #pragma GCC optimize ("-O3")
 
-void sw_uart_setup(due_sw_uart *uart, int rx, int stopbits, int databits, int paritybit) {
+void sw_uart_setup(due_sw_uart *uart, int tx, int stopbits, int databits, int paritybit) {
 	
-	uart->pin_rx     = rx;
+	uart->pin_tx     = tx;
 	uart->stopbits   = stopbits;
 	uart->paritybit  = paritybit;
   uart->databits   = databits;
-  pinMode(rx, INPUT);
+  pinMode(tx, OUTPUT);
   
 }
 
@@ -88,4 +88,36 @@ void _sw_uart_wait_half_T(due_sw_uart *uart) {
 void _sw_uart_wait_T(due_sw_uart *uart) {
   _sw_uart_wait_half_T(uart);
   _sw_uart_wait_half_T(uart);
+}
+
+void sw_uart_write_byte(due_sw_uart *uart, char data) {
+  // send parity
+  int parity = 0;
+
+  if(uart->paritybit == SW_UART_EVEN_PARITY) {
+     parity = calc_even_parity(data);
+  } else if(uart->paritybit == SW_UART_ODD_PARITY) {
+     parity = !calc_even_parity(data);
+  }
+  
+  // send start bit
+  digitalWrite(uart->pin_tx, LOW);
+  _sw_uart_wait_T(uart);
+  
+  // start sending data
+  for(int i = uart->databits -1; 0; i--) {
+    digitalWrite(uart->pin_tx, (data >> i) & 0x01);
+    _sw_uart_wait_T(uart);
+  }
+
+  if(uart->paritybit != SW_UART_NO_PARITY) {
+    digitalWrite(uart->pin_tx, parity);
+    _sw_uart_wait_T(uart);  
+  }
+  
+  // send stop bit
+  for(int i = 0; i < uart->stopbits; i++) {
+    digitalWrite(uart->pin_tx, HIGH);
+    _sw_uart_wait_T(uart);
+  }
 }
