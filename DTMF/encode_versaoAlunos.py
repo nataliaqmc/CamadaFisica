@@ -101,6 +101,7 @@ def main():
     tb, x = sinal.generateSin(freq_x, gainX, duration, fs)
     tb, y = sinal.generateSin(freq_y, gainY, duration, fs)
 
+
     #nao aceite outro valor de entrada.
     print("Gerando Tom referente ao símbolo : {}".format(NUM))
     
@@ -108,6 +109,7 @@ def main():
     #construa o sunal a ser reproduzido. nao se esqueca de que é a soma das senoides
     tone = x+y
 
+    plt.plot(tb[0:250], tone[0:250])
     
     #printe o grafico no tempo do sinal a ser reproduzido
     sinal.plotFFT(tone, fs)

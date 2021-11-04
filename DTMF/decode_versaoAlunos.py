@@ -84,25 +84,45 @@ def main():
     tecla_obtida = None
     for f in freq_l:
         if 1200 <=f<=1220:
-            tecla_obtida = 1
+            for i in freq_l:
+                if 687<=i<=707:
+                    tecla_obtida = 1
         elif 1326 <= f <= 1346:
-            tecla_obtida = 2
+            for i in freq_l:
+                if 687<=i<=707:
+                    tecla_obtida = 2
         elif 1467 <= f <= 1487:
-            tecla_obtida = 3
+            for i in freq_l:
+                if 687<=i<=707:
+                    tecla_obtida = 3
         elif 1200 <=f<=1220:
-            tecla_obtida = 4
+            for i in freq_l:
+                if 760<=i<=780:
+                    tecla_obtida = 4
         elif 1326 <= f <= 1346:
-            tecla_obtida = 5
+            for i in freq_l:
+                if 760<=i<=780:
+                    tecla_obtida = 5
         elif 1467 <= f <= 1487:
-            tecla_obtida = 6
+            for i in freq_l:
+                if 760<=i<=780:
+                    tecla_obtida = 6
         elif 1200 <=f<=1220:
-            tecla_obtida = 7
+            for i in freq_l:
+                if 842<=i<=862:
+                    tecla_obtida = 7
         elif 1326 <= f <= 1346:
-            tecla_obtida = 8
+            for i in freq_l:
+                if 842<=i<=862:
+                    tecla_obtida = 8
         elif 1467 <= f <= 1487:
-            tecla_obtida = 9
+            for i in freq_l:
+                if 842<=i<=862:
+                    tecla_obtida = 9
         elif 1326 <= f <= 1346:
-            tecla_obtida = 0
+            for i in freq_l:
+                if 931<=i<=951:
+                    tecla_obtida = 0
     print('Tecla obtida: ', tecla_obtida)
 
     # plot do gráfico áudio vs tempo!
