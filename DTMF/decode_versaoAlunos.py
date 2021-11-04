@@ -12,7 +12,7 @@ import time
 from suaBibSignal import *
 import peakutils
 
-#funcao para transformas intensidade acustica em dB
+#funcao para transformar intensidade acustica em dB
 def todB(s):
     sdB = 10*np.log10(s)
     return(sdB)
@@ -67,14 +67,6 @@ def main():
     numPontos = duration*fs
     t = np.linspace(inicio,fim,numPontos)
 
-
-
-    # plot do gráfico áudio vs tempo!
-    """plt.figure("F(y)")
-    plt.plot(y,t)
-    plt.grid()
-    plt.title('Áudio por tempo')"""
-
     
     ## Calcula e exibe o Fourier do sinal audio. como saida tem-se a amplitude e as frequencias
     xf, yf = signal.calcFFT(y, fs)
@@ -83,12 +75,43 @@ def main():
     print("-----------index:", index)
 
     freq_l = []
+    freq_l_y = []
     for i in index:
         freq_pico = xf[i]
+        print('yfi',yf[i])
         freq_l.append(freq_pico)
+        freq_l_y.append(yf[i])
+    tecla_obtida = None
+    for f in freq_l:
+        if 1200 <=f<=1220:
+            tecla_obtida = 1
+        elif 1326 <= f <= 1346:
+            tecla_obtida = 2
+        elif 1467 <= f <= 1487:
+            tecla_obtida = 3
+        elif 1200 <=f<=1220:
+            tecla_obtida = 4
+        elif 1326 <= f <= 1346:
+            tecla_obtida = 5
+        elif 1467 <= f <= 1487:
+            tecla_obtida = 6
+        elif 1200 <=f<=1220:
+            tecla_obtida = 7
+        elif 1326 <= f <= 1346:
+            tecla_obtida = 8
+        elif 1467 <= f <= 1487:
+            tecla_obtida = 9
+        elif 1326 <= f <= 1346:
+            tecla_obtida = 0
+    print('Tecla obtida: ', tecla_obtida)
 
+    # plot do gráfico áudio vs tempo!
+    plt.figure("Audio X Tempo")
+    plt.plot(y,t)
+    plt.grid()
+    plt.title('Áudio por tempo')
 
-
+    # plot do gráfico Fourier!
     plt.figure("F(y)")
     plt.plot(xf,yf)
     plt.grid()

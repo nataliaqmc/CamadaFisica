@@ -108,7 +108,7 @@ def main():
     #construa o sunal a ser reproduzido. nao se esqueca de que é a soma das senoides
     tone = x+y
 
-
+    
     #printe o grafico no tempo do sinal a ser reproduzido
     sinal.plotFFT(tone, fs)
 
