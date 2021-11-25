@@ -10,3 +10,6 @@
  - Projeto 3 - Datagrama (18/09)
  - Projeto 4 e 5 - Protocolo ponto a ponto (06/10)
  - Projeto 6 - Serialização UART (22/10)
+ - Projeto 7 - DTMF
+ - Projeto 8 - Modulação AM
+ - Projeto 9 - Paper Review
